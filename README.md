@@ -1,2 +1,39 @@
 # nabcat
 A niche terminal utility for quickly sending cat images to the clipboard.
+
+`nabcat` is a single shell script written in `zsh` that lets you quickly copy cat pictures from `$HOME/Picutres/Cats/` to the system clipboard. 
+It works well within scripts, yet has convenient default behavior.
+Running `nabcat` without arguments is equivalent to running `viu -w 30 "$(nabcat choose -cr)"` if you have `viu` installed, and `nabcat choose -cr` if you don't.
+# How to Get Nabcat
+## Dependencies
+First, ensure that dependencies are satisfied.
+### Interactive Cat Picker
+`nabcat` depends on [gum](https://github.com/charmbracelet/gum) to show an interactive picker when `gum choose` is invoked.
+### Optional Terminal Image Viewer
+If [viu](https://github.com/atanunq/viu?tab=readme-ov-file) is installed, `nabcat` will use it to show the copied cat in the terminal. Make sure your terminal supports either iterm or kitty.
+### Clipboard functionality
+If you are on `X11`, install `xsel` to allow nabcat to send selected cats to your clipboard.
+If you are on `wayland`, install `wl-clipboard` instead. `nabcat` will detect which display server is active and look for the respective program.
+## Installation
+To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions.
+
+# How to use Nabcat
+## Setting up the Cat folder
+Unfortunately, the cats themselves are not included with the program.
+By default, `nabcat` looks in `$HOME/Pictures/Cats/` for cat images.
+If you want to change this behavior, the environment variable `NABCAT_CAT_DIR` can be set to a custom location. BE SURE TO INCLUDE A TRAILING SLASH IN THE VALUE!
+Alternatively, `nabcat` commands that accept the `-d` flag allow you to specify a location in which to look for images. Make sure that the value passed to this flag includes a trailing slash.
+## Getting a cat
+Running `nabcat` without arguments invokes an interactive menu listing all cats in the Cats folder. Fuzzy searching is supported within the menu.
+If you already know the name of the image you want to retrieve, running `nabcat get` lets you specify the name of the file (without the extension) without having to invoke the menu. However, the selected cat will not be automatically previewed, so if you want that, set up an alias.
+If you don't care what cat you get, running `nabcat random` will return the path to a random cat in the folder.
+
+For more information, run `nabcat help`, optionally passing the name of a command.
+
+# Considerations
+- `wl-clipboard` currently has a bug that prevents GIFs and PNGs from being copied to the clipboard. To avoid this, save all cats as PNGs.
+- If the filenames of your cats contain spaces, you'll need to enclose the call to `nabcat` within quotes like so:
+```shell
+some_other_command "$(nabcat get -r 'critically orange cat')"
+```
+- `viu` can struggle with displaying high-resolutions. To use an alternate image viewer, edit the call to `viu` found within `nabcat_main()`. Work is underway to allow the viewer to be more easily modified.
