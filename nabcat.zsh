@@ -1,0 +1,479 @@
+#!/usr/bin/zsh
+## TODO: Test script with bash.
+
+if [ -z "$(command -v gum)" ]; then
+  echo "ERROR: dependency gum not satisfied."
+  exit 1
+fi
+
+declare -g flag_disable_clipboard
+
+case $XDG_SESSION_TYPE in
+  wayland)
+    [ -z "$(command -v wl-copy)" ] && gum log -s -l warn "Dependency 'wl-clipboard' not met. Clipboard functionality will not work."
+    flag_disable_clipboard=1
+  ;;
+  x11)
+    [ -z "$(command -v xsel)" ] && gum log -s -l warn "Dependency 'xsel' not satisfied. Clipboard function will not work."
+    flag_disable_clipboard=1
+  ;;
+  *)
+    gum log -s -l error "Unrecognized display server: $XDG_SESSION_TYPE."
+    flag_disable_clipboard=1
+  ;;
+esac
+
+declare -g env_version="1.1.0"
+
+declare -g env_clipboard_command
+declare -g var_catpath
+declare -g flag_do_copy=1
+## check if nabcat directory is specified in environment variable. if not, fallback to default.
+if [ $NABCAT_CAT_DIR ]; then
+  declare -g env_cat_dir="$NABCAT_CAT_DIR"
+else
+  declare -g env_cat_dir="$HOME/Pictures/Cats/"
+fi
+declare -g env_picker="gum filter"
+declare -g flag_verbose
+declare -g flag_return_result
+declare -g flag_search_interactive
+declare -g flag_do_file_overwrite
+
+
+function nabcat_main() {
+  if [ $# -eq 0 ]; then
+  	thatcat=$(nabcat_choose -cr)
+    if [ -z "$(echo $thatcat | grep -Po '\/$')" ]; then
+      if [ ! -z "$(command -v viu)" ]; then
+      	viu -w 30 "$thatcat"
+      fi
+      gum log -s -l info "Copied \"$(echo $thatcat | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')\" to clipboard"
+    else
+      exit 0
+    fi
+    exit 0
+  fi
+  case $1 in
+    get)
+      shift
+      nabcat_get $@
+    ;;
+    choose)
+      shift
+      nabcat_choose $@
+    ;;
+    save)
+      shift
+      nabcat_save $@
+    ;;
+    list)
+      shift
+      nabcat_list $@
+    ;;
+    info)
+      shift
+      nabcat_info $@
+    ;;
+    random)
+      shift
+      nabcat_random $@
+    ;;
+    help)
+      shift
+      nabcat_help $@
+    ;;
+    *)
+      gum log -s -l fatal "Unrecognized command: $1"
+    ;;
+  esac
+}
+
+function nabcat_info() {
+  feat_wl_clipboard_status="enabled"
+  feat_x11_clipboard_status="enabled"
+  feat_viu_preview_status="enabled"
+  	  	
+  if [ -z "$(command -v wl-copy)" ]; then
+    feat_wl_clipboard_status="disabled"
+  fi
+  
+  if [ -z "$(command -v xsel)" ]; then
+  	feat_x11_clipboard_status="disabled"
+  fi
+
+  if [ -z "$(command -v viu)" ]; then
+  	feat_viu_preview_status="disabled"
+  fi
+
+  if [ $# -eq 0 ]; then
+  	echo "$env_version"
+    echo -e "WL_CLIPBOARD,$feat_wl_clipboard_status\nX11_CLIPBOARD,$feat_x11_clipboard_status\nVIU_PREVIEW,$feat_viu_preview_status" | gum table -c "FEATURE,STATUS" -p --border rounded
+  	exit 0
+  fi
+
+  declare flag_V
+  declare flag_f
+  while getopts "Vf" opts; do
+	case $opts in
+	  V)
+	    flag_V="true"
+	  ;;
+	  f)
+	    flag_f="true"
+	  ;;
+	  *)
+	  	exit 3
+	  ;;
+	esac
+  done
+
+  [ -z $flag_V ] || echo "$env_version"
+  [ -z $flag_f ] || echo -e "WL_CLIPBOARD,$feat_wl_clipboard_status\nX11_CLIPBOARD,$feat_x11_clipboard_status\nVIU_PREVIEW,$feat_viu_preview_status" | gum table -c "FEATURE,STATUS" -p --border rounded
+  exit 0
+}
+
+function nabcat_random() {
+  while getopts "d:v" opts; do
+    case opts in
+      d)
+        env_cat_dir="$OPTARG"
+      ;;
+      v)
+        flag_verbose=1
+      ;;
+      *)
+      exit 3
+      ;;
+    esac
+  done
+  ## choose randomly from env_cat_dir
+  retval="$env_cat_dir$(ls $env_cat_dir | shuf -n 1)"
+  catname=$(echo "$retval" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
+  [ $flag_verbose ] && gum log -s -l info "Retrieved $catname."
+  echo "$retval"
+}
+
+## BUG: won't save from searXNG image proxy links.
+function nabcat_save() {
+  while getopts "d:vrO" opts; do
+    case $opts in
+      d)
+        env_cat_dir="$OPTARG"
+      ;;
+      v)
+        flag_verbose=1
+      ;;
+      r)
+        flag_return_result=1
+      ;;
+      O)
+        flag_do_file_overwrite=1
+      ;;
+      *)
+        exit 3
+      ;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+  newname="$1"
+  data_source="$2"
+  if [ $flag_do_file_overwrite ]; then
+    [ $flag_verbose ] && gum log -s -l info "Writing cat into file: $env_cat_dir$1"
+    eval "$data_source" > $env_cat_dir$newname
+  else
+    # check if we will overwrite
+    if [ -z $(ls $env_cat_dir | grep -Po "^$1") ]; then
+      # no prablem. write it.
+      [ $flag_verbose ] && gum log -s -l info "Writing cat into file: $env_cat_dir$1"
+      eval "$data_source" > $env_cat_dir$newname
+    else
+      gum log -s -l warn "File $1 exists at $env_cat_dir. To overwrite this file, run the command with the -O flag."
+      exit 4
+    fi
+  fi
+}
+
+function nabcat_list() {
+  while getopts "d:" opts; do
+    case $opts in
+      d)
+        env_cat_dir="$OPTARG"
+      ;;
+      *)
+        exit 3
+      ;;
+    esac
+  done
+  \ls "$env_cat_dir"
+}
+
+function nabcat_choose() {
+  while getopts "d:cCP:vr" opts; do
+    case $opts in
+      d)
+        env_cat_dir="$OPTARG"
+      ;;
+      c)
+        [ $flag_disable_clipboard ] && flag_do_copy=1
+        [ $flag_disable_clipboard ] ||  gum log -s -l warn "Clipboard functionality disabled due to lack of required dependency."
+      ;;
+      C)
+        unset -v flag_do_copy
+      ;;
+      P)
+        env_picker="$OPTARG"
+      ;;
+      v)
+        flag_verbose=1
+      ;;
+      r)
+        flag_return_result=1
+      ;;
+      *)
+        exit 3
+      ;;
+    esac
+  done
+  
+  cmd="ls $env_cat_dir | $env_picker"
+  var_catpath="$env_cat_dir$(eval $cmd)"
+  ## prevent sending all cats in folder to output.
+  catname=$(echo "$var_catpath" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
+  if [ -z "$catname" ]; then
+  	exit 0
+  fi
+  
+  [ $flag_verbose ] && gum log -s -l info "Retrieved cat: $catname"
+
+  #echo "$var_catpath"
+  
+  if [ $flag_do_copy ]; then
+    if [ $flag_verbose ]; then
+      gum log -s -l info "Copied \"$catname\" to clipboard."
+    fi
+    case "$XDG_SESSION_TYPE" in
+      wayland)
+        wl-copy < $var_catpath
+      ;;
+      x11)
+      ##BUG: only works with PNGs
+        xsel --selection --clipboard -t image/png -i "$var_catpath"
+      ;;
+      *)
+        echo "Display server not recognized. Expected either 'wayland' or 'x11', got \"$XDG_SESSION_TYPE\""
+        return 2
+      ;;
+    esac
+  fi
+  
+  if [ $flag_return_result ]; then
+    [ -z "$var_catpath" ] || echo "$var_catpath"
+  fi
+}
+
+function nabcat_get() {
+  while getopts "d:cCv" opts; do
+    case $opts in
+      d)
+        env_cat_dir="$OPTARG"
+      ;;
+      c)
+        [ $flag_disable_clipboard ] && flag_do_copy=1
+        [ $flag_disable_clipboard ] || gum log -s -l warn "Clipboard functionality disabled due to lack of required dependency."
+      ;;
+      C)
+        unset -v flag_do_copy
+      ;;
+      v)
+        flag_verbose=1
+      ;;
+      *)
+        exit 3
+      ;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+  ## copy logic
+  var_catpath="$env_cat_dir$1.png"
+  if [ ! -f "$var_catpath" ]; then
+    gum log -s -l error "Cat \"$1\" not found in $env_cat_dir."
+    exit 4
+  fi
+  
+  if [ $flag_do_copy ]; then
+    if [ $flag_verbose ]; then
+      catname=$(echo "$var_catpath" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
+      gum log -s -l info "Copied \"$catname\" to clipboard."
+    fi
+    case "$XDG_SESSION_TYPE" in
+      wayland)
+        wl-copy < $var_catpath
+      ;;
+      x11)
+        xsel --selection --clipboard -t image/png -i "$var_catpath"
+      ;;
+      *)
+        echo "Display server not recognized. Expected either 'wayland' or 'x11' from \$XDG_SESSION_TYPE, got \"$XDG_SESSION_TYPE\""
+        exit 2
+    ;;
+    esac
+  fi
+  ## output catpath for use in scripts. need a way to give completions.
+  
+  flag_return_result=1
+  echo "$var_catpath"
+}
+
+function _choose_help() {
+  
+  declare -A flagarray_choose=( ["-c"]="Copy the selected cat to the clipboard. This is the default behavior." ["-C"]="Do not copy result to clipboard." ["-P STRING"]="Command into which the list of files will be piped to allow for interactive selection. Default value is 'gum filter'" ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  
+  echo "CHOOSE: Interactively select a cat."
+  echo "usage: nabcat choose [-cCvr] [-P STRING] [-d PATH]"
+  echo -e "\n Flags:"
+  for key in ${(k)flagarray_choose}; do
+    printf '  %s\t%s\n' "$key" "$flagarray_choose[$key]" | expand -t 15
+  done
+  
+}
+
+function _get_help() {
+  
+  declare -A flagarray_get=( ["-c"]="Copy the selected cat to the clipboard. This is the default behavior." ["-C"]="Do not copy result to clipboard." ["-d"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A argsarray_get=( ["FILENAME"]="The file name of the cat you wish to get, without the extension." )
+  
+  echo "GET: Pass a name of a cat to get that cat."
+  echo "usage: nabcat get [-d PATH] [-cCvr] FILENAME"
+  echo -e "\nArguments:"
+  for key in ${(k)argsarray_get}; do
+    printf '  %s\t%s\n' "$key" "$argsarray_get[$key]" | expand -t 15
+  done
+  echo -e "\nFlags:"
+  for key in ${(k)flagarray_get}; do
+    printf '  %s\t%s\n' "$key" "$flagarray_get[$key]" | expand -t 15
+  done
+}
+
+function _random_help() {
+  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." )
+  
+  echo "RANDOM: Returns the path to a random cat."
+  echo "usage: nabcat random [-d PATH] [-v]"
+  echo -e "\nFlags:"
+  for key in ${(v)flagtable_random}; do
+    printf '  %s\t%s\n' "$key" "$flagtable_random[$key]" | expand -t 15
+  done
+}
+
+function _save_help() {
+  declare -A argsarray_save=( ["NEWNAME"]="Name of the newly created file, including the extension." ["SOURCE"]="Expression or command substitution that outputs the file data of a remote cat." )
+  
+  declare -A flagarray_save=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-O"]="Overwrite files if they already exist. Disabled by default." ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  
+  echo "SAVE: save a cat from a source to a file of your choosing within the cats folder."
+  echo "usage: nabcat save [-d path] [-vrO] NEWNAME SOURCE"
+  echo -e "\nArguments:"
+  for key in ${(k)argsarray_save}; do
+    printf '  %s\t%s\n' "$key" "$argsarray_save[$key]" | expand -t 15
+  done
+  echo -e "\nFlags:"
+  for key in ${(k)flagarray_save}; do
+    printf '  %s\t%s\n' "$key" "$flagarray_save[$key]" | expand -t 15
+  done
+}
+
+function _list_help() {
+  
+  declare -A flagarray_list=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir" )
+  echo "LIST: list contents of the cats directory."
+  echo "usage: nabcat list [-d PATH]"
+  echo -e "\nFlags:"
+  for key in ${(k)flagarray_list}; do
+    printf '  %s\t%s\n' "$key" "$flagarray_list[$key]" | expand -t 15
+  done
+}
+
+function _info_help() {
+    declare -A flagarray_info=( ["-f"]="List features and their status." ["-V"]="Show nabcat's version." )
+	
+	echo "INFO: Show available features and version."
+    echo "usage: nabcat info [-fV]"
+    echo -e "\nFlags:"
+	for key in ${(k)flagarray_info}; do
+    printf '  %s\t%s\n' "$key" "$flagarray_info[$key]" | expand -t 15
+  done
+}
+
+function nabcat_help() {
+  ## check $1 for name of command
+  if [ -z "$1" ]; then
+    ## if none found, print general help
+    declare -A deparray=( ["gum"]="Interactive choosing of cats." ["viu"]="(Optional) Image previewing." ["xsel"]="Clipboard functionality (X11 only)" ["wl-clipboard"]="Clipboard functionality (Wayland only)" )
+    
+    echo "nabcat: quickly find cat images and send them to the clipboard for posting. If the environment variable NABCAT_CAT_DIR is not set, nabcat falls back to looking for cats in \$HOME/Pictures/Cats/. Make sure to include the trailing slash when setting this environment variable."
+    echo "USAGE: nabcat"
+    echo "       nabcat choose [-cCvr] [-P STRING] [-d PATH]"
+    echo "       nabcat get [-d PATH] [-cCvr] FILENAME"
+    echo "       nabcat random [-d PATH] [-v]"
+    echo "       nabcat save [-d path] [-vrO] NEWNAME SOURCE"
+    echo "       nabcat list [-d PATH]"
+    echo "       nabcat help [?COMMAND]"
+    echo ""
+    echo "Running the command without arguments is equivalent to running 'viu -w 30 \"\$(nabcat choose -cr)\"' if you have viu installed, and 'nabcat choose -cr' if you don't."
+    echo ""
+    echo "nabcat depends on the following external programs:"
+    for key in ${(k)deparray}; do
+      printf '  %s\t%s\n' "$key" "$deparray[$key]" | expand -t 15
+    done
+    echo -e "\nCOMMANDS:\n"
+    _choose_help
+    echo -e "\n"
+    _get_help
+    echo -e "\n"
+    _random_help
+    echo -e "\n"
+    _save_help
+    echo -e "\n"
+    _list_help
+    echo -e "\n"
+    _info_help
+  else
+    ## if one found, print detailed help for that command.
+    case "$1" in
+      choose)
+        _choose_help
+      ;;
+      get)
+        _get_help
+      ;;
+      random)
+        _random_help
+      ;;
+      save)
+        _save_help
+      ;;
+      list)
+        _list_help
+      ;;
+      info)
+        _info_help
+      ;;
+      help)
+        declare -A argsarray_help=( ["COMMAND"]="Optional. Command to show help for. Valid options include: choose, get, save, list, random, info, help" )
+        
+        echo "HELP: show help messages"
+        echo "usage: nabcat help [COMMAND]"
+        echo -e "\nArguments:"
+        for key in ${(k)argsarray_help}; do
+          printf '  %s\t%s\n' "$key" "$argsarray_help[$key]" | expand -t 15
+        done
+      ;;
+      *)
+        gum log -s -l warn "Command not found: $1."
+      ;;
+    esac
+  fi
+}
+
+nabcat_main $@
