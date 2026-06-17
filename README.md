@@ -1,6 +1,8 @@
 # nabcat
 A niche terminal utility for quickly sending cat images to the clipboard.
 
+![A demonstration of Nabcat's capabilities, featuring my cat Daphne.](res/nabcat_demo_picture.png)
+
 `nabcat` is a single shell script written in `zsh` that lets you quickly copy cat pictures from `$HOME/Picutres/Cats/` to the system clipboard. 
 It works well within scripts, yet has convenient default behavior.
 Running `nabcat` without arguments is equivalent to running `viu -w 30 "$(nabcat choose -cr)"` if you have `viu` installed, and `nabcat choose -cr` if you don't.
