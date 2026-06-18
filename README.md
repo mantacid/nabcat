@@ -10,7 +10,7 @@ Running `nabcat` without arguments is equivalent to running `viu -w 30 "$(nabcat
 ## Dependencies
 First, ensure that dependencies are satisfied.
 ### Interactive Cat Picker
-`nabcat` depends on [gum](https://github.com/charmbracelet/gum) to show an interactive picker when `gum choose` is invoked.
+`nabcat` depends on [gum](https://github.com/charmbracelet/gum) to show an interactive picker when `nabcat choose` is invoked.
 ### Optional Terminal Image Viewer
 If [viu](https://github.com/atanunq/viu?tab=readme-ov-file) is installed, `nabcat` will use it to show the copied cat in the terminal. Make sure your terminal supports either iterm or kitty.
 ### Clipboard functionality
