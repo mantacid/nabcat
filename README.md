@@ -38,4 +38,4 @@ For more information, run `nabcat help`, optionally passing the name of a comman
 ```shell
 some_other_command "$(nabcat get -r 'critically orange cat')"
 ```
-- `viu` can struggle with displaying high-resolutions. To use an alternate image viewer, edit the call to `viu` found within `nabcat_main()`. Work is underway to allow the viewer to be more easily modified.
+- `viu`'s performance can be impacted by high-resolution images. To use an alternate image viewer, edit the call to `viu` found within `nabcat_main()`. Work is underway to allow the viewer to be more easily modified.
