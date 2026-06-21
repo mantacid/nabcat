@@ -135,7 +135,7 @@ function nabcat_info() {
 
 function nabcat_random() {
   while getopts "d:vcC" opts; do
-    case opts in
+    case $opts in
       d)
         env_cat_dir="$OPTARG"
       ;;
@@ -146,7 +146,7 @@ function nabcat_random() {
       	flag_do_copy=1
       ;;
       C)
-      	unset flag_do_copy
+      	unset -v flag_do_copy
       ;;
       *)
       exit 3
@@ -165,6 +165,7 @@ function nabcat_random() {
 		"wayland")
 			wl-copy < $retval
 	esac
+	gum log -s -l info "Copied \"$catname\" to clipboard."
   fi
   echo "$retval"
 }
