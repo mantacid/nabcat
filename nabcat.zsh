@@ -134,13 +134,19 @@ function nabcat_info() {
 }
 
 function nabcat_random() {
-  while getopts "d:v" opts; do
+  while getopts "d:vcC" opts; do
     case opts in
       d)
         env_cat_dir="$OPTARG"
       ;;
       v)
         flag_verbose=1
+      ;;
+      c)
+      	flag_do_copy=1
+      ;;
+      C)
+      	unset flag_do_copy
       ;;
       *)
       exit 3
@@ -151,6 +157,15 @@ function nabcat_random() {
   retval="$env_cat_dir$(ls $env_cat_dir | shuf -n 1)"
   catname=$(echo "$retval" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
   [ $flag_verbose ] && gum log -s -l info "Retrieved $catname."
+  if [ $flag_do_copy ]; then
+	case $XDG_SESSION_TYPE in
+		"x11")
+			xsel --selection --clipboard -t image/png -i "$retval"
+		;;
+		"wayland")
+			wl-copy < $retval
+	esac
+  fi
   echo "$retval"
 }
 
@@ -356,12 +371,12 @@ function _get_help() {
 }
 
 function _random_help() {
-  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." )
+  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." ["-c"]="Copy the selected cat to the clipboard. This is the default behavior." ["-C"]="Do not copy result to clipboard." )
   
   echo "RANDOM: Returns the path to a random cat."
   echo "usage: nabcat random [-d PATH] [-v]"
   echo -e "\nFlags:"
-  for key in ${(v)flagtable_random}; do
+  for key in ${(k)flagtable_random}; do
     printf '  %s\t%s\n' "$key" "$flagtable_random[$key]" | expand -t 15
   done
 }
