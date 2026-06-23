@@ -1,0 +1,23 @@
+version: '1.2.1'
+
+env:
+  cat-dir: "/home/mantacid/Pictures/Cats/"
+  do-copy: true
+  verbose: false
+  return-found: true
+
+integrations:
+  # Args appended to end. no quotes.
+  clipboard:
+    - &x11 xsel --selection --clipboard -t image/png -i 
+    - &wayland wl-copy < 
+    - &kde ''
+  viewer:
+    - &viu viu -w 30 
+  picker:
+    - &gum gum filter 
+
+programs: # Reference the commands defined in integrations to set which command will be used for each purpose.
+  clipboard: *wayland
+  viewer: *viu
+  picker: *gum
