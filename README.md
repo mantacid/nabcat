@@ -13,15 +13,15 @@ First, ensure that dependencies are satisfied.
 `nabcat` uses [yq](https://github.com/mikefarah/yq) to parse its config file. This dependency is required.
 ### Interactive Cat Picker
 `nabcat` depends on [gum](https://github.com/charmbracelet/gum) to show an interactive picker when `nabcat choose` is invoked.
-As of version `1.2.0`, alternate pickers can be specified in the config file.
+As of version `1.2.0`, alternate pickers can be specified in the config file. However, gum is also used to format error messages.
 ### Optional Terminal Image Viewer
 If [viu](https://github.com/atanunq/viu?tab=readme-ov-file) is installed, `nabcat` will use it to show the copied cat in the terminal. Make sure your terminal supports either iterm or kitty.
 As of version `1.2.0`, alternate viewers can be specified in the config file.
 ### Clipboard functionality
 If you are on `X11`, install `xsel` to allow nabcat to send selected cats to your clipboard.
-If you are on `wayland`, install `wl-clipboard` instead. `nabcat` will detect which display server is active and look for the respective program.
+If you are on `wayland`, install `wl-clipboard` instead.
 ## Installation
-To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions. Then, place `nabcat.yaml` in `~/.config`.
+To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions. Then, place `nabcat.yaml` in `~/.config`. Finally, enable the backends you want to use in the config.
 
 # How to use Nabcat
 ## Setting up the Cat folder
@@ -36,10 +36,26 @@ If you don't care what cat you get, running `nabcat random` will return the path
 
 For more information, run `nabcat help`, optionally passing the name of a command.
 
+## Configuring Nabcat
+`nabcat` looks for a YAML file named `nabcat.yaml` in `$XDG_CONFIG_HOME`. The format of this file is as follows:
+### `env`
+Contains values that define default behavior.
+| key | Default | Desc |
+| --- | ------- | ---- |
+| `cat-dir` | `~/Pictures/Cats/` | Where to look for cats |
+| `do-copy` | `true` | whether to copy to the clipboard by default |
+| `verbose` | `false` | verbose output |
+| `return-found` | `true` | whether to print the name of a cat if one is found. |  
+
+### `integrations`
+Contains three sections: `clipboard`, `viewer`, and `picker`.
+Each section contains a list of anchored commands without quotes. This allows additional backends to easily be defined and used.
+### `programs`
+Contains three keys corresponding to the sections in `integrations`. the value of each one should be a reference to one of the anchors defined in the corresponding section.
 # Considerations
 - `wl-clipboard` currently has a bug that prevents GIFs and PNGs from being copied to the clipboard. To avoid this, save all cats as PNGs.
 - If the filenames of your cats contain spaces, you'll need to enclose the call to `nabcat` within quotes like so:
 ```shell
 some_other_command "$(nabcat get -r 'critically orange cat')"
 ```
-- `viu`'s performance can be impacted by high-resolution images. To use an alternate image viewer, edit the call to `viu` found within `nabcat_main()`. Work is underway to allow the viewer to be more easily modified.
+- `viu`'s performance can be impacted by high-resolution images. If you have an alternative, define a integration for it in the config.
