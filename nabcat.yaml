@@ -1,7 +1,7 @@
 version: '1.2.1'
 
 env:
-  cat-dir: "/home/mantacid/Pictures/Cats/"
+  cat-dir: "~/Pictures/Cats/"
   do-copy: true
   verbose: false
   return-found: true

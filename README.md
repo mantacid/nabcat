@@ -9,15 +9,19 @@ Running `nabcat` without arguments is equivalent to running `viu -w 30 "$(nabcat
 # How to Get Nabcat
 ## Dependencies
 First, ensure that dependencies are satisfied.
+### Configuration Parser
+`nabcat` uses [yq](https://github.com/mikefarah/yq) to parse its config file. This dependency is required.
 ### Interactive Cat Picker
 `nabcat` depends on [gum](https://github.com/charmbracelet/gum) to show an interactive picker when `nabcat choose` is invoked.
+As of version `1.2.0`, alternate pickers can be specified in the config file.
 ### Optional Terminal Image Viewer
 If [viu](https://github.com/atanunq/viu?tab=readme-ov-file) is installed, `nabcat` will use it to show the copied cat in the terminal. Make sure your terminal supports either iterm or kitty.
+As of version `1.2.0`, alternate viewers can be specified in the config file.
 ### Clipboard functionality
 If you are on `X11`, install `xsel` to allow nabcat to send selected cats to your clipboard.
 If you are on `wayland`, install `wl-clipboard` instead. `nabcat` will detect which display server is active and look for the respective program.
 ## Installation
-To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions.
+To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions. Then, place `nabcat.yaml` in `~/.config`.
 
 # How to use Nabcat
 ## Setting up the Cat folder
