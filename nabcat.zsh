@@ -6,6 +6,11 @@ if [ -z "$(command -v gum)" ]; then
   exit 1
 fi
 
+if [ -z "$(command -v yq)" ]; then
+  echo "ERROR: dependency yq not satisfied."
+  exit 1
+fi
+
 declare -g flag_disable_clipboard
 
 case $XDG_SESSION_TYPE in
@@ -23,7 +28,44 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="1.1.0"
+declare -g env_version="1.2.0"
+
+declare -g conf_path=$HOME/.config/nabcat.yaml
+#declare -g conf_path=nabcat.yaml
+
+function read_config() {
+  
+  declare -g env_prog_clipboard=$(yq e -o shell '.programs.clipboard' $conf_path | sed 's|value=||g' | sed "s|'||g")
+  declare -g env_prog_viewer=$(yq e -o shell '.programs.viewer' $conf_path | sed 's|value=||g' | sed "s|'||g")
+  declare -g env_prog_picker=$(yq e -o shell '.programs.picker' $conf_path | sed 's|value=||g' | sed "s|'||g")
+  declare -g env_cat_dir=$(yq '.env.cat-dir' $conf_path)
+  case $(yq e '.env.do-copy' $conf_path) in
+    true)
+      declare -g flag_do_copy=1
+    ;;
+    *)
+      declare -g flag_do_copy
+    ;;
+  esac
+
+  case $(yq e '.env.verbose' $conf_path) in
+    true)
+      declare -g flag_verbose=1
+    ;;
+    *)
+      declare -g flag_verbose
+    ;;
+  esac
+
+  case $(yq e '.env.return-found' $conf_path) in
+    true)
+      declare -g flag_return_result=1
+    ;;
+    *)
+      declare -g flag_return_result
+    ;;
+  esac
+}
 
 declare -g env_clipboard_command
 declare -g var_catpath
@@ -37,16 +79,20 @@ fi
 declare -g env_picker="gum filter"
 declare -g flag_verbose
 declare -g flag_return_result
-declare -g flag_search_interactive
+#declare -g flag_search_interactive
 declare -g flag_do_file_overwrite
 
 
 function nabcat_main() {
+  read_config
+  
   if [ $# -eq 0 ]; then
   	thatcat=$(nabcat_choose -cr)
     if [ -z "$(echo $thatcat | grep -Po '\/$')" ]; then
       if [ ! -z "$(command -v viu)" ]; then
-      	viu -w 30 "$thatcat"
+        eval $(echo "$env_prog_viewer \"$thatcat\"")
+        
+      	#viu -w 30 "$thatcat"
       fi
       gum log -s -l info "Copied \"$(echo $thatcat | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')\" to clipboard"
     else
@@ -158,13 +204,7 @@ function nabcat_random() {
   catname=$(echo "$retval" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
   [ $flag_verbose ] && gum log -s -l info "Retrieved $catname."
   if [ $flag_do_copy ]; then
-	case $XDG_SESSION_TYPE in
-		"x11")
-			xsel --selection --clipboard -t image/png -i "$retval"
-		;;
-		"wayland")
-			wl-copy < $retval
-	esac
+    eval $(echo "$env_prog_clipboard \"$retval\"")
 	gum log -s -l info "Copied \"$catname\" to clipboard."
   fi
   echo "$retval"
@@ -322,18 +362,7 @@ function nabcat_get() {
       catname=$(echo "$var_catpath" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
       gum log -s -l info "Copied \"$catname\" to clipboard."
     fi
-    case "$XDG_SESSION_TYPE" in
-      wayland)
-        wl-copy < $var_catpath
-      ;;
-      x11)
-        xsel --selection --clipboard -t image/png -i "$var_catpath"
-      ;;
-      *)
-        echo "Display server not recognized. Expected either 'wayland' or 'x11' from \$XDG_SESSION_TYPE, got \"$XDG_SESSION_TYPE\""
-        exit 2
-    ;;
-    esac
+    eval $(echo "$env_prog_clipboard \"$var_catpath\"")
   fi
   ## output catpath for use in scripts. need a way to give completions.
   
