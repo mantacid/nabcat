@@ -28,7 +28,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="1.2.0"
+declare -g env_version="2.0.0"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 #declare -g conf_path=nabcat.yaml
@@ -136,37 +136,16 @@ function nabcat_main() {
 }
 
 function nabcat_info() {
-  feat_wl_clipboard_status="enabled"
-  feat_x11_clipboard_status="enabled"
-  feat_viu_preview_status="enabled"
-  	  	
-  if [ -z "$(command -v wl-copy)" ]; then
-    feat_wl_clipboard_status="disabled"
-  fi
   
-  if [ -z "$(command -v xsel)" ]; then
-  	feat_x11_clipboard_status="disabled"
-  fi
-
-  if [ -z "$(command -v viu)" ]; then
-  	feat_viu_preview_status="disabled"
-  fi
-
-  if [ $# -eq 0 ]; then
-  	echo "$env_version"
-    echo -e "WL_CLIPBOARD,$feat_wl_clipboard_status\nX11_CLIPBOARD,$feat_x11_clipboard_status\nVIU_PREVIEW,$feat_viu_preview_status" | gum table -c "FEATURE,STATUS" -p --border rounded
-  	exit 0
-  fi
-
   declare flag_V
-  declare flag_f
+  declare flag_y
   while getopts "Vf" opts; do
 	case $opts in
 	  V)
 	    flag_V="true"
 	  ;;
-	  f)
-	    flag_f="true"
+	  y)
+	    flag_y="true"
 	  ;;
 	  *)
 	  	exit 3
@@ -175,7 +154,7 @@ function nabcat_info() {
   done
 
   [ -z $flag_V ] || echo "$env_version"
-  [ -z $flag_f ] || echo -e "WL_CLIPBOARD,$feat_wl_clipboard_status\nX11_CLIPBOARD,$feat_x11_clipboard_status\nVIU_PREVIEW,$feat_viu_preview_status" | gum table -c "FEATURE,STATUS" -p --border rounded
+  [ -z $flag_y ] || yq e '.' $conf_path
   exit 0
 }
 
@@ -440,10 +419,10 @@ function _list_help() {
 }
 
 function _info_help() {
-    declare -A flagarray_info=( ["-f"]="List features and their status." ["-V"]="Show nabcat's version." )
+    declare -A flagarray_info=( ["-V"]="Show the version." ["-y"]="Show the current config" )
 	
 	echo "INFO: Show available features and version."
-    echo "usage: nabcat info [-fV]"
+    echo "usage: nabcat info [-Vy]"
     echo -e "\nFlags:"
 	for key in ${(k)flagarray_info}; do
     printf '  %s\t%s\n' "$key" "$flagarray_info[$key]" | expand -t 15
