@@ -50,11 +50,11 @@ Contains values that define default behavior.
 | `verbose` | `false` | verbose output |
 | `return-found` | `true` | whether to print the name of a cat if one is found. |  
 
-### `integrations`
+### `backend-defs`
 Contains three sections: `clipboard`, `viewer`, and `picker`.
 Each section contains a list of anchored commands without quotes. This allows additional backends to easily be defined and used.
-### `programs`
-Contains three keys corresponding to the sections in `integrations`. the value of each one should be a reference to one of the anchors defined in the corresponding section.
+### `backends`
+Contains three keys corresponding to the sections in `backend-defs`. the value of each one should be a reference to one of the anchors defined in the corresponding section.
 # Considerations
 - `wl-clipboard` currently has a bug that prevents GIFs and PNGs from being copied to the clipboard. To avoid this, save all cats as PNGs.
 - If the filenames of your cats contain spaces, you'll need to enclose the call to `nabcat` within quotes like so:

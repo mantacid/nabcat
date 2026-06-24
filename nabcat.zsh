@@ -27,15 +27,15 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="2.0.2"
+declare -g env_version="3.0.0"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 
 function read_config() {
   
-  declare -g env_prog_clipboard=$(yq e -o shell '.programs.clipboard' $conf_path | sed 's|value=||g' | sed "s|'||g")
-  declare -g env_prog_viewer=$(yq e -o shell '.programs.viewer' $conf_path | sed 's|value=||g' | sed "s|'||g")
-  declare -g env_prog_picker=$(yq e -o shell '.programs.picker' $conf_path | sed 's|value=||g' | sed "s|'||g")
+  declare -g env_prog_clipboard=$(yq e -o shell '.backends.clipboard' $conf_path | sed 's|value=||g' | sed "s|'||g")
+  declare -g env_prog_viewer=$(yq e -o shell '.backends.viewer' $conf_path | sed 's|value=||g' | sed "s|'||g")
+  declare -g env_prog_picker=$(yq e -o shell '.backends.picker' $conf_path | sed 's|value=||g' | sed "s|'||g")
   declare -g env_cat_dir=$(yq '.env.cat-dir' $conf_path)
   case $(yq e '.env.do-copy' $conf_path) in
     true)
@@ -70,10 +70,10 @@ declare -g var_catpath
 declare -g flag_do_copy=1
 ## check if nabcat directory is specified in environment variable. if not, fallback to default.
 if [ $NABCAT_CAT_DIR ]; then
-  gum log -s -l warn "the environment variable NABCAT_CAT_DIR will be depreciated soon. You should transition to specifying the cat directory in your nabcat.yaml file."
-  declare -g env_cat_dir="$NABCAT_CAT_DIR"
-else
-  declare -g env_cat_dir="$HOME/Pictures/Cats/"
+  if [ -z $env_cat_dir ]; then
+    gum log -s -l warn "Environment variable NABCAT_CAT_DIR depreciated as of 3.0.0, and the value was not found in $conf_path."
+    exit 7
+  fi
 fi
 declare -g env_picker="gum filter"
 declare -g flag_verbose

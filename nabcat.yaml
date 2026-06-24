@@ -8,7 +8,7 @@ env:
 ### INTEGRATIONS: organized by their purpose. Define commands here that will
 ### get referenced in the next section. Command arguments will get appended
 ### to the end of these strings. DO NOT QUOTE THESE STRINGS.
-integrations:
+backend-defs:
   clipboard:
     - &x11 xsel --selection --clipboard -t image/png -i 
     - &wayland wl-copy < 
@@ -18,7 +18,7 @@ integrations:
     - &gum gum filter
     - &fzf fzf 
 ### PROGRAMS: Control which backends are used for each function.
-programs:
+backends:
   clipboard: *wayland
   viewer: *viu
   picker: *fzf
