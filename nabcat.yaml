@@ -16,7 +16,7 @@ backend-defs:
     - &viu viu -w 30
   picker:
     - &gum gum filter
-    - &fzf fzf 
+    - &fzf fzf --style=full --preview="icat -m 24bit -w 50 $(echo $env_cat_dir){}"
 ### PROGRAMS: Control which backends are used for each function.
 backends:
   clipboard: *wayland
