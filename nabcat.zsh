@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="2.0.0"
+declare -g env_version="2.0.1"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 
