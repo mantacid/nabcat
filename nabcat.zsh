@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.0.0"
+declare -g env_version="3.0.1"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 
@@ -136,7 +136,7 @@ function nabcat_info() {
   
   declare flag_V
   declare flag_y
-  while getopts "Vf" opts; do
+  while getopts "Vy" opts; do
 	case $opts in
 	  V)
 	    flag_V="true"
