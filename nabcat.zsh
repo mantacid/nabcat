@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="2.0.1"
+declare -g env_version="2.0.2"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 
@@ -254,7 +254,7 @@ function nabcat_choose() {
         unset -v flag_do_copy
       ;;
       P)
-        env_picker="$OPTARG"
+        env_prog_picker="$OPTARG"
       ;;
       v)
         flag_verbose=1
@@ -268,7 +268,7 @@ function nabcat_choose() {
     esac
   done
   
-  cmd="ls $env_cat_dir | $env_picker"
+  cmd="ls $env_cat_dir | $env_prog_picker"
   var_catpath="$env_cat_dir$(eval $cmd)"
   ## prevent sending all cats in folder to output.
   catname=$(echo "$var_catpath" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')

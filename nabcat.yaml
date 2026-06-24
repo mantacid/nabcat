@@ -16,9 +16,9 @@ integrations:
     - &viu viu -w 30
   picker:
     - &gum gum filter
-
+    - &fzf fzf 
 ### PROGRAMS: Control which backends are used for each function.
 programs:
   clipboard: *wayland
   viewer: *viu
-  picker: *gum
+  picker: *fzf
