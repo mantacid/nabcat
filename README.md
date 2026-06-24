@@ -13,13 +13,16 @@ First, ensure that dependencies are satisfied.
 `nabcat` uses [yq](https://github.com/mikefarah/yq) to parse its config file. This dependency is required.
 ### Interactive Cat Picker
 `nabcat` depends on [gum](https://github.com/charmbracelet/gum) to show an interactive picker when `nabcat choose` is invoked.
-As of version `1.2.0`, alternate pickers can be specified in the config file. However, gum is also used to format error messages.
+As of version `1.2.0`, alternate pickers can be specified in the config file. However, gum is also used to format error messages. Work is underway to remove this dependency.
 ### Optional Terminal Image Viewer
 If [viu](https://github.com/atanunq/viu?tab=readme-ov-file) is installed, `nabcat` will use it to show the copied cat in the terminal. Make sure your terminal supports either iterm or kitty.
 As of version `1.2.0`, alternate viewers can be specified in the config file.
 ### Clipboard functionality
 If you are on `X11`, install `xsel` to allow nabcat to send selected cats to your clipboard.
 If you are on `wayland`, install `wl-clipboard` instead.
+
+### Additional Programs
+if you write your own backend-definitions, you obviously need to install the programs being invoked.
 ## Installation
 To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions. Then, place `nabcat.yaml` in `~/.config`. Finally, enable the backends you want to use in the config.
 
