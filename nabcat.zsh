@@ -27,13 +27,13 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.2.1"
+declare -g env_version="3.2.2"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
   <<EOF > $conf_path
 env:
-  cat-dir: "~/Pictures/Cats/"
+  cat-dir: "$HOME/Pictures/Cats/"
   do-copy: true
   verbose: false
   return-found: true
@@ -45,7 +45,7 @@ backend-defs:
     - &viu viu -w 30
   picker:
     - &gum gum filter
-    - &fzf fzf --style=full
+    - &fzf fzf --style=full --preview="icat -m 24bit -w 50 $(echo $env_cat_dir){}"
 backends:
   clipboard: *$XDG_SESSION_TYPE
   viewer: *viu
