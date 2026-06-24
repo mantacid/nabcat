@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.2.0"
+declare -g env_version="3.2.1"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -450,10 +450,8 @@ function nabcat_help() {
   ## check $1 for name of command
   if [ -z "$1" ]; then
     ## if none found, print general help
-    declare -A deparray=( ["gum"]="Interactive choosing of cats." ["viu"]="(Optional) Image previewing." ["xsel"]="Clipboard functionality (X11 only)" ["wl-clipboard"]="Clipboard functionality (Wayland only)" )
     
-    echo "nabcat: quickly find cat images and send them to the clipboard for posting. If the environment variable NABCAT_CAT_DIR is not set, nabcat falls back to looking for cats in \$HOME/Pictures/Cats/. Make sure to include the trailing slash when setting this environment variable."
-    echo "USAGE: nabcat"
+    echo "nabcat: quickly find cat images and send them to the clipboard for posting."
     echo "       nabcat choose [-cCvr] [-P STRING] [-d PATH]"
     echo "       nabcat get [-d PATH] [-cCvr] FILENAME"
     echo "       nabcat random [-d PATH] [-v]"
@@ -463,10 +461,7 @@ function nabcat_help() {
     echo ""
     echo "Running the command without arguments is equivalent to running 'viu -w 30 \"\$(nabcat choose -cr)\"' if you have viu installed, and 'nabcat choose -cr' if you don't."
     echo ""
-    echo "nabcat depends on the following external programs:"
-    for key in ${(k)deparray}; do
-      printf '  %s\t%s\n' "$key" "$deparray[$key]" | expand -t 15
-    done
+    
     echo -e "\nCOMMANDS:\n"
     _choose_help
     echo -e "\n"
