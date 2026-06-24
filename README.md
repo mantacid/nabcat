@@ -28,6 +28,9 @@ To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable
 Unfortunately, the cats themselves are not included with the program.
 By default, `nabcat` looks in `$HOME/Pictures/Cats/` for cat images.
 If you want to change this behavior, the environment variable `NABCAT_CAT_DIR` can be set to a custom location. BE SURE TO INCLUDE A TRAILING SLASH IN THE VALUE!
+> [!WARNING]
+> This environment variable will be depreciated in version 3.x.x
+
 Alternatively, `nabcat` commands that accept the `-d` flag allow you to specify a location in which to look for images. Make sure that the value passed to this flag includes a trailing slash.
 ## Getting a cat
 Running `nabcat` without arguments invokes an interactive menu listing all cats in the Cats folder. Fuzzy searching is supported within the menu.

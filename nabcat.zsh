@@ -1,5 +1,4 @@
 #!/usr/bin/zsh
-## TODO: Test script with bash.
 
 if [ -z "$(command -v gum)" ]; then
   echo "ERROR: dependency gum not satisfied."
@@ -31,7 +30,6 @@ esac
 declare -g env_version="2.0.0"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
-#declare -g conf_path=nabcat.yaml
 
 function read_config() {
   
@@ -72,6 +70,7 @@ declare -g var_catpath
 declare -g flag_do_copy=1
 ## check if nabcat directory is specified in environment variable. if not, fallback to default.
 if [ $NABCAT_CAT_DIR ]; then
+  gum log -s -l warn "the environment variable NABCAT_CAT_DIR will be depreciated soon. You should transition to specifying the cat directory in your nabcat.yaml file."
   declare -g env_cat_dir="$NABCAT_CAT_DIR"
 else
   declare -g env_cat_dir="$HOME/Pictures/Cats/"
@@ -79,9 +78,7 @@ fi
 declare -g env_picker="gum filter"
 declare -g flag_verbose
 declare -g flag_return_result
-#declare -g flag_search_interactive
 declare -g flag_do_file_overwrite
-
 
 function nabcat_main() {
   read_config
@@ -281,8 +278,6 @@ function nabcat_choose() {
   
   [ $flag_verbose ] && gum log -s -l info "Retrieved cat: $catname"
 
-  #echo "$var_catpath"
-  
   if [ $flag_do_copy ]; then
     if [ $flag_verbose ]; then
       gum log -s -l info "Copied \"$catname\" to clipboard."
@@ -292,7 +287,7 @@ function nabcat_choose() {
         wl-copy < $var_catpath
       ;;
       x11)
-      ##BUG: only works with PNGs
+      ##BUG: only works with PNGs. This is an upstream issue.
         xsel --selection --clipboard -t image/png -i "$var_catpath"
       ;;
       *)
