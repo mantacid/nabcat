@@ -459,8 +459,7 @@ function nabcat_help() {
     echo "       nabcat list [-d PATH]"
     echo "       nabcat help [?COMMAND]"
     echo ""
-    echo "Running the command without arguments is equivalent to running 'viu -w 30 \"\$(nabcat choose -cr)\"' if you have viu installed, and 'nabcat choose -cr' if you don't."
-    echo ""
+    echo "Running the command without arguments will attempt to invoke the viewer defined in your config's backends section on the result of 'nabcat choose -cr'"
     
     echo -e "\nCOMMANDS:\n"
     _choose_help
