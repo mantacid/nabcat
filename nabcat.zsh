@@ -379,7 +379,7 @@ function _choose_help() {
 
 function _get_help() {
   
-  declare -A flagarray_get=( ["-c"]="Copy the selected cat to the clipboard. This is the default behavior." ["-C"]="Do not copy result to clipboard." ["-d"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A flagarray_get=( ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-d"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
   declare -A argsarray_get=( ["FILENAME"]="The file name of the cat you wish to get, without the extension." )
   
   echo "GET: Pass a name of a cat to get that cat."
@@ -395,7 +395,7 @@ function _get_help() {
 }
 
 function _random_help() {
-  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." ["-c"]="Copy the selected cat to the clipboard. This is the default behavior." ["-C"]="Do not copy result to clipboard." )
+  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." )
   
   echo "RANDOM: Returns the path to a random cat."
   echo "usage: nabcat random [-d PATH] [-v]"
@@ -408,7 +408,7 @@ function _random_help() {
 function _save_help() {
   declare -A argsarray_save=( ["NEWNAME"]="Name of the newly created file, including the extension." ["SOURCE"]="Expression or command substitution that outputs the file data of a remote cat." )
   
-  declare -A flagarray_save=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-O"]="Overwrite files if they already exist. Disabled by default." ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A flagarray_save=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-O"]="Overwrite files if they already exist. Disabled by default." ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
   
   echo "SAVE: save a cat from a source to a file of your choosing within the cats folder."
   echo "usage: nabcat save [-d path] [-vrO] NEWNAME SOURCE"
@@ -424,7 +424,7 @@ function _save_help() {
 
 function _list_help() {
   
-  declare -A flagarray_list=( ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir" )
+  declare -A flagarray_list=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir" )
   echo "LIST: list contents of the cats directory."
   echo "usage: nabcat list [-d PATH]"
   echo -e "\nFlags:"
