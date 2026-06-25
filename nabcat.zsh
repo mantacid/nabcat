@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.3.0"
+declare -g env_version="3.3.1"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -60,7 +60,7 @@ function read_config() {
   declare -g env_prog_clipboard=$(yq e -o shell '.backends.clipboard' $conf_path | sed 's|value=||g' | sed "s|'||g")
   declare -g env_prog_viewer=$(yq e -o shell '.backends.viewer' $conf_path | sed 's|value=||g' | sed "s|'||g")
   declare -g env_prog_picker=$(yq e -o shell '.backends.picker' $conf_path | sed 's|value=||g' | sed "s|'||g")
-  declare -g env_cat_dir=$(yq '.env.cat-dir' $conf_path)
+  declare -g env_cat_dir=$(yq e -o shell '.env.cat-dir' $conf_path | sed 's|value=||g' | sed "s|'||g")
   case $(yq e '.env.do-copy' $conf_path) in
     true)
       declare -g flag_do_copy=1
