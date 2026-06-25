@@ -177,7 +177,7 @@ function nabcat_info() {
     echo -e "Version: $env_version\n"
     yq e '.' $conf_path
   else
-    [ -z $flag_V ] || echo -e "Version: $env_version\n"
+    [ -z $flag_V ] || echo -e "Version: $env_version"
     [ -z $flag_y ] || yq e '.' $conf_path
   fi
   exit 0
