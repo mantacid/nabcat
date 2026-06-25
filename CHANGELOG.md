@@ -10,15 +10,15 @@
 
 # Version 2
 ## 2.0.0
-- *2.0.0*: Transition (most) parameters to new config format.
+- Transition (most) parameters to new config format.
 - *2.0.1*: Remove unused globals.
 - *2.0.2*: Fix picker config values being ignored.
 
 # Version 3
 ## 3.0.0
-- *3.0.0*: Depreciated `$NABCAT_CAT_DIR` environment variable.
-- *3.0.0*: More helpful config header names.
-- *3.0.0*: Fixed options parsing bug in `info` command.
+- Depreciated `$NABCAT_CAT_DIR` environment variable.
+- More helpful config header names.
+- Fixed options parsing bug in `info` command.
 ## 3.1.0
 -  Implement first-time config generation.
 ## 3.2.0
