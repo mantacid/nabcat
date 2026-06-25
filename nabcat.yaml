@@ -1,6 +1,8 @@
+locations:
+  - &defaultlocation "~/Pictures/Cats/"
 ### ENV: contains values that define default behavior.
 env:
-  cat-dir: "~/Pictures/Cats/"
+  cat-dir: *defaultlocation
   do-copy: true
   verbose: false
   return-found: true

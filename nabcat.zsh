@@ -27,13 +27,15 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.2.3"
+declare -g env_version="3.3.0"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
   <<EOF > $conf_path
+locations:
+  - &defaultlocation "$HOME/Pictures/Cats/"
 env:
-  cat-dir: "$HOME/Pictures/Cats/"
+  cat-dir: *defaultlocation
   do-copy: true
   verbose: false
   return-found: true
