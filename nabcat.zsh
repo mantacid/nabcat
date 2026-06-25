@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.2.2"
+declare -g env_version="3.2.3"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -270,7 +270,7 @@ function nabcat_choose() {
       ;;
       c)
         [ $flag_disable_clipboard ] && flag_do_copy=1
-        [ $flag_disable_clipboard ] ||  gum log -s -l warn "Clipboard functionality disabled due to lack of required dependency."
+        [ $flag_disable_clipboard ] ||  gum log -s -l warn "Clipboard functionality already disabled."
       ;;
       C)
         unset -v flag_do_copy
@@ -297,26 +297,18 @@ function nabcat_choose() {
   if [ -z "$catname" ]; then
   	exit 0
   fi
-  
-  [ $flag_verbose ] && gum log -s -l info "Retrieved cat: $catname"
+
+  if [ ! -z "$catname" ]; then
+    [ $flag_verbose ] && gum log -s -l info "Retrieved cat: $catname"
+  else
+    [ $flag_verbose ] && gum log -s -l info "No cat selected."
+  fi
 
   if [ $flag_do_copy ]; then
     if [ $flag_verbose ]; then
-      gum log -s -l info "Copied \"$catname\" to clipboard."
+      [ ! -z "$catname" ] && gum log -s -l info "Copied \"$catname\" to clipboard."
     fi
-    case "$XDG_SESSION_TYPE" in
-      wayland)
-        wl-copy < $var_catpath
-      ;;
-      x11)
-      ##BUG: only works with PNGs. This is an upstream issue.
-        xsel --selection --clipboard -t image/png -i "$var_catpath"
-      ;;
-      *)
-        echo "Display server not recognized. Expected either 'wayland' or 'x11', got \"$XDG_SESSION_TYPE\""
-        return 2
-      ;;
-    esac
+    eval $(echo "$env_prog_clipboard \"$var_catpath\"")
   fi
   
   if [ $flag_return_result ]; then
