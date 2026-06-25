@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.3.1"
+declare -g env_version="3.3.2"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -173,9 +173,13 @@ function nabcat_info() {
 	  ;;
 	esac
   done
-
-  [ -z $flag_V ] || echo "$env_version"
-  [ -z $flag_y ] || yq e '.' $conf_path
+  if [ -z $flag_V ] && [ -z $flag_y ]; then
+    echo -e "Version: $env_version\n"
+    yq e '.' $conf_path
+  else
+    [ -z $flag_V ] || echo -e "Version: $env_version\n"
+    [ -z $flag_y ] || yq e '.' $conf_path
+  fi
   exit 0
 }
 
