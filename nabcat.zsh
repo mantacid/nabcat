@@ -366,7 +366,7 @@ function nabcat_get() {
 
 function _choose_help() {
   
-  declare -A flagarray_choose=( ["-c"]="Copy the selected cat to the clipboard. This is the default behavior." ["-C"]="Do not copy result to clipboard." ["-P STRING"]="Command into which the list of files will be piped to allow for interactive selection." ["-d PATH"]="Override the location in which to search for cats. Default value is $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A flagarray_choose=( ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-P STRING"]="Command into which the list of files will be piped to allow for interactive selection." ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
   
   echo "CHOOSE: Interactively select a cat."
   echo "usage: nabcat choose [-cCvr] [-P STRING] [-d PATH]"
