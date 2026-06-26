@@ -32,3 +32,8 @@
 - *3.3.1*: Fixed legacy parsing code for `env.cat-dir` to properly substitute anchor references.
 - *3.3.2*: Fixed `info` not returning any info when no flags passed.
 - *3.3.3*: Fixed verbose output attempting to print when selection was canceled.
+
+# 3.4.0
+- Removed hard dependency on `gum`. This dependency is now optional for if you want to use it as your picker backend.
+- added `-q` flag to force-disable verbose output, since it was breaking no-argument usage.
+- Running `nabcat` without arguments will not detect if the viewer defined in the config file is installed.

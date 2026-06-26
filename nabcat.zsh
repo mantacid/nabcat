@@ -1,10 +1,4 @@
 #!/usr/bin/zsh
-
-if [ -z "$(command -v gum)" ]; then
-  echo "ERROR: dependency gum not satisfied."
-  exit 1
-fi
-
 if [ -z "$(command -v yq)" ]; then
   echo "ERROR: dependency yq not satisfied."
   exit 1
@@ -14,20 +8,20 @@ declare -g flag_disable_clipboard
 
 case $XDG_SESSION_TYPE in
   wayland)
-    [ -z "$(command -v wl-copy)" ] && gum log -s -l warn "Dependency 'wl-clipboard' not met. Clipboard functionality will not work."
+    [ -z "$(command -v wl-copy)" ] && pretty_log warn "Dependency 'wl-clipboard' not met. Clipboard functionality will not work."
     flag_disable_clipboard=1
   ;;
   x11)
-    [ -z "$(command -v xsel)" ] && gum log -s -l warn "Dependency 'xsel' not satisfied. Clipboard function will not work."
+    [ -z "$(command -v xsel)" ] && pretty_log warn "Dependency 'xsel' not satisfied. Clipboard function will not work."
     flag_disable_clipboard=1
   ;;
   *)
-    gum log -s -l error "Unrecognized display server: $XDG_SESSION_TYPE."
+    pretty_log error "Unrecognized display server: $XDG_SESSION_TYPE."
     flag_disable_clipboard=1
   ;;
 esac
 
-declare -g env_version="3.3.3"
+declare -g env_version="3.4.0"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -54,6 +48,16 @@ backends:
   picker: *fzf
 EOF
 fi
+
+function pretty_log() {
+	declare -A lvl_str_arr=( ["info"]="\033[36m INFO  \033[0m" ["warn"]="\033[33m WARN  \033[0m" ["error"]="\033[1;31m ERROR \033[22;0m" ["fatal"]="\033[1;41;33m FATAL \033[22;0m" )
+    echo -e "[${lvl_str_arr[$1]}]: $2"
+}
+
+#pretty_log info "info log"
+#pretty_log warn "warning string"
+#pretty_log error "error string"
+#pretty_log fatal "fatality"
 
 function read_config() {
   
@@ -95,11 +99,10 @@ declare -g flag_do_copy=1
 ## check if nabcat directory is specified in environment variable. if not, fallback to default.
 if [ $NABCAT_CAT_DIR ]; then
   if [ -z $env_cat_dir ]; then
-    gum log -s -l warn "Environment variable NABCAT_CAT_DIR depreciated as of 3.0.0, and the value was not found in $conf_path."
+    pretty_log warn "Environment variable NABCAT_CAT_DIR depreciated as of 3.0.0, and the value was not found in $conf_path."
     exit 7
   fi
 fi
-declare -g env_picker="gum filter"
 declare -g flag_verbose
 declare -g flag_return_result
 declare -g flag_do_file_overwrite
@@ -108,11 +111,16 @@ function nabcat_main() {
   read_config
   
   if [ $# -eq 0 ]; then
-  	thatcat=$(nabcat_choose -cr)
+  	thatcat=$(nabcat_choose -crq)
+  	catname=$(echo $thatcat | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
+  	viewer_name=$(echo $env_prog_viewer | grep -Po '^[a-zA-Z0-9\-_]+')
     if [ -z "$thatcat" ]; then
-      [ $flag_verbose ] && gum log -s -l info "Aborted."
+      [ $flag_verbose ] && pretty_log info "Aborted."
     else
-      eval $(echo "$env_prog_viewer \"$thatcat\"")
+      if [ ! -z $(command -v "$viewer_name") ]; then
+        eval $(echo "$env_prog_viewer \"$thatcat\"")
+        [ $flag_verbose ] && pretty_log info "Retrieved & copied cat \"$catname\" to clipboard."
+      fi
     fi
     exit 0
   fi
@@ -146,7 +154,7 @@ function nabcat_main() {
       nabcat_help $@
     ;;
     *)
-      gum log -s -l fatal "Unrecognized command: $1"
+      pretty_log fatal "Unrecognized command: $1"
     ;;
   esac
 }
@@ -179,13 +187,16 @@ function nabcat_info() {
 }
 
 function nabcat_random() {
-  while getopts "d:vcC" opts; do
+  while getopts "d:vqcC" opts; do
     case $opts in
       d)
         env_cat_dir="$OPTARG"
       ;;
       v)
         flag_verbose=1
+      ;;
+      q)
+        unset -v flag_verbose
       ;;
       c)
       	flag_do_copy=1
@@ -201,23 +212,26 @@ function nabcat_random() {
   ## choose randomly from env_cat_dir
   retval="$env_cat_dir$(ls $env_cat_dir | shuf -n 1)"
   catname=$(echo "$retval" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
-  [ $flag_verbose ] && gum log -s -l info "Retrieved $catname."
+  [ $flag_verbose ] && pretty_log info "Retrieved $catname."
   if [ $flag_do_copy ]; then
     eval $(echo "$env_prog_clipboard \"$retval\"")
-	gum log -s -l info "Copied \"$catname\" to clipboard."
+	pretty_log info "Copied \"$catname\" to clipboard."
   fi
   echo "$retval"
 }
 
 ## BUG: won't save from searXNG image proxy links.
 function nabcat_save() {
-  while getopts "d:vrO" opts; do
+  while getopts "d:vqrO" opts; do
     case $opts in
       d)
         env_cat_dir="$OPTARG"
       ;;
       v)
         flag_verbose=1
+      ;;
+      q)
+        unset -v flag_verbose
       ;;
       r)
         flag_return_result=1
@@ -234,16 +248,16 @@ function nabcat_save() {
   newname="$1"
   data_source="$2"
   if [ $flag_do_file_overwrite ]; then
-    [ $flag_verbose ] && gum log -s -l info "Writing cat into file: $env_cat_dir$1"
+    [ $flag_verbose ] && pretty_log info "Writing cat into file: $env_cat_dir$1"
     eval "$data_source" > $env_cat_dir$newname
   else
     # check if we will overwrite
     if [ -z $(ls $env_cat_dir | grep -Po "^$1") ]; then
       # no prablem. write it.
-      [ $flag_verbose ] && gum log -s -l info "Writing cat into file: $env_cat_dir$1"
+      [ $flag_verbose ] && pretty_log info "Writing cat into file: $env_cat_dir$1"
       eval "$data_source" > $env_cat_dir$newname
     else
-      gum log -s -l warn "File $1 exists at $env_cat_dir. To overwrite this file, run the command with the -O flag."
+      pretty_log warn "File $1 exists at $env_cat_dir. To overwrite this file, run the command with the -O flag."
       exit 4
     fi
   fi
@@ -264,23 +278,26 @@ function nabcat_list() {
 }
 
 function nabcat_choose() {
-  while getopts "d:cCP:vr" opts; do
+  while getopts "d:cCP:vqr" opts; do
     case $opts in
       d)
         env_cat_dir="$OPTARG"
       ;;
+      v)
+        flag_verbose=1
+      ;;
+      q)
+        unset -v flag_verbose
+      ;;
       c)
         [ $flag_disable_clipboard ] && flag_do_copy=1
-        [ $flag_disable_clipboard ] ||  gum log -s -l warn "Clipboard functionality already disabled."
+        [ $flag_disable_clipboard ] || pretty_log warn "Clipboard functionality already disabled."
       ;;
       C)
         unset -v flag_do_copy
       ;;
       P)
         env_prog_picker="$OPTARG"
-      ;;
-      v)
-        flag_verbose=1
       ;;
       r)
         flag_return_result=1
@@ -300,14 +317,14 @@ function nabcat_choose() {
   fi
 
   if [ ! -z "$catname" ]; then
-    [ $flag_verbose ] && gum log -s -l info "Retrieved cat: $catname"
+    [ $flag_verbose ] && pretty_log info "Retrieved cat: $catname"
   else
-    [ $flag_verbose ] && gum log -s -l info "No cat selected."
+    [ $flag_verbose ] && pretty_log info "No cat selected."
   fi
 
   if [ $flag_do_copy ]; then
     if [ $flag_verbose ]; then
-      [ ! -z "$catname" ] && gum log -s -l info "Copied \"$catname\" to clipboard."
+      [ ! -z "$catname" ] && pretty_log info "Copied \"$catname\" to clipboard."
     fi
     eval $(echo "$env_prog_clipboard \"$var_catpath\"")
   fi
@@ -318,20 +335,23 @@ function nabcat_choose() {
 }
 
 function nabcat_get() {
-  while getopts "d:cCv" opts; do
+  while getopts "d:cCvq" opts; do
     case $opts in
       d)
         env_cat_dir="$OPTARG"
       ;;
+      v)
+        flag_verbose=1
+      ;;
+      q)
+        unset -v flag_verbose
+      ;;
       c)
         [ $flag_disable_clipboard ] && flag_do_copy=1
-        [ $flag_disable_clipboard ] || gum log -s -l warn "Clipboard functionality disabled due to lack of required dependency."
+        [ $flag_disable_clipboard ] || pretty_log warn "Clipboard functionality disabled due to lack of required dependency."
       ;;
       C)
         unset -v flag_do_copy
-      ;;
-      v)
-        flag_verbose=1
       ;;
       *)
         exit 3
@@ -342,14 +362,14 @@ function nabcat_get() {
   ## copy logic
   var_catpath="$env_cat_dir$1.png"
   if [ ! -f "$var_catpath" ]; then
-    gum log -s -l error "Cat \"$1\" not found in $env_cat_dir."
+    pretty_log error "Cat \"$1\" not found in $env_cat_dir."
     exit 4
   fi
   
   if [ $flag_do_copy ]; then
     if [ $flag_verbose ]; then
       catname=$(echo "$var_catpath" | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')
-      gum log -s -l info "Copied \"$catname\" to clipboard."
+      pretty_log info "Copied \"$catname\" to clipboard."
     fi
     eval $(echo "$env_prog_clipboard \"$var_catpath\"")
   fi
@@ -361,7 +381,7 @@ function nabcat_get() {
 
 function _choose_help() {
   
-  declare -A flagarray_choose=( ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-P STRING"]="Command into which the list of files will be piped to allow for interactive selection." ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A flagarray_choose=( ["-q"]="Force-disable verbose output." ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-P STRING"]="Command into which the list of files will be piped to allow for interactive selection." ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." ["-q"]="Force-disable verbose output." )
   
   echo "CHOOSE: Interactively select a cat."
   echo "usage: nabcat choose [-cCvr] [-P STRING] [-d PATH]"
@@ -374,7 +394,7 @@ function _choose_help() {
 
 function _get_help() {
   
-  declare -A flagarray_get=( ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-d"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A flagarray_get=( ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-d"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." ["-q"]="Force-disable verbose output." )
   declare -A argsarray_get=( ["FILENAME"]="The file name of the cat you wish to get, without the extension." )
   
   echo "GET: Pass a name of a cat to get that cat."
@@ -390,7 +410,7 @@ function _get_help() {
 }
 
 function _random_help() {
-  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." )
+  declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-q"]="Force-disable verbose output." )
   
   echo "RANDOM: Returns the path to a random cat."
   echo "usage: nabcat random [-d PATH] [-v]"
@@ -403,7 +423,7 @@ function _random_help() {
 function _save_help() {
   declare -A argsarray_save=( ["NEWNAME"]="Name of the newly created file, including the extension." ["SOURCE"]="Expression or command substitution that outputs the file data of a remote cat." )
   
-  declare -A flagarray_save=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-O"]="Overwrite files if they already exist. Disabled by default." ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." )
+  declare -A flagarray_save=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-O"]="Overwrite files if they already exist. Disabled by default." ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." ["-q"]="Force-disable verbose output." )
   
   echo "SAVE: save a cat from a source to a file of your choosing within the cats folder."
   echo "usage: nabcat save [-d path] [-vrO] NEWNAME SOURCE"
@@ -498,7 +518,7 @@ function nabcat_help() {
         done
       ;;
       *)
-        gum log -s -l warn "Command not found: $1."
+        pretty_log warn "Command not found: $1."
       ;;
     esac
   fi
