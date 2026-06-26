@@ -12,10 +12,10 @@ First, ensure that dependencies are satisfied.
 ### Configuration Parser
 `nabcat` uses [yq](https://github.com/mikefarah/yq) to parse its config file. This dependency is required.
 ### Interactive Cat Picker
-`nabcat` is set up to use [fzf]() as the default picker, incorporating [icat]() for real-time previews.
-A backend definition that uses [gum]() is also included in the default config file.
+`nabcat` is set up to use [fzf](https://github.com/junegunn/fzf) as the default picker, incorporating [icat](https://github.com/atextor/icat) for real-time previews.
+A backend definition that uses [gum](https://github.com/charmbracelet/gum) is also included in the default config file.
 ### Optional Terminal Image Viewer
-`nabcat` is set up to use [viu]() as the default image viewer when `nabcat` is invoked without arguments. However, the script will detect if you have it installed before attempting to call it, so this dependency is optional.
+`nabcat` is set up to use [viu](https://github.com/atanunq/viu?tab=readme-ov-file) as the default image viewer when `nabcat` is invoked without arguments. However, the script will detect if you have it installed before attempting to call it, so this dependency is optional.
 ### Clipboard functionality
 If you are on `X11`, install `xsel` to allow nabcat to send selected cats to your clipboard.
 If you are on `wayland`, install `wl-clipboard` instead.
