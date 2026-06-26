@@ -27,7 +27,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.3.2"
+declare -g env_version="3.3.3"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -109,15 +109,10 @@ function nabcat_main() {
   
   if [ $# -eq 0 ]; then
   	thatcat=$(nabcat_choose -cr)
-    if [ -z "$(echo $thatcat | grep -Po '\/$')" ]; then
-      if [ ! -z "$(command -v viu)" ]; then
-        eval $(echo "$env_prog_viewer \"$thatcat\"")
-        
-      	#viu -w 30 "$thatcat"
-      fi
-      gum log -s -l info "Copied \"$(echo $thatcat | grep -Po '(?<=\/)[a-zA-Z0-9\-_\s]+(?=\.)')\" to clipboard"
+    if [ -z "$thatcat" ]; then
+      [ $flag_verbose ] && gum log -s -l info "Aborted."
     else
-      exit 0
+      eval $(echo "$env_prog_viewer \"$thatcat\"")
     fi
     exit 0
   fi

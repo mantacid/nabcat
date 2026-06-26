@@ -31,3 +31,4 @@
 - Added `locations` header in config to store multiple cat directories. `nabcat` still only checks one default location.
 - *3.3.1*: Fixed legacy parsing code for `env.cat-dir` to properly substitute anchor references.
 - *3.3.2*: Fixed `info` not returning any info when no flags passed.
+- *3.3.3*: Fixed verbose output attempting to print when selection was canceled.
