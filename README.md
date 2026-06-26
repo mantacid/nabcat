@@ -23,7 +23,7 @@ If you are on `wayland`, install `wl-clipboard` instead.
 ### Additional Programs
 if you write your own backend-definitions, you obviously need to install the programs being invoked.
 ## Installation
-To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions. Then, place `nabcat.yaml` in `~/.config`. Finally, enable the backends you want to use in the config.
+To install, simply place `nabcat.zsh` somewhere in `$PATH`, and grant executable permissions. Running it for the first time will auto-generate a config file at `$XDG_CONFIG_HOME/nabcat.yaml`. Once you've done that, edit the config to your heart's desire.
 
 # How to use Nabcat
 ## Setting up the Cat folder
