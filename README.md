@@ -64,3 +64,22 @@ Contains three keys corresponding to the sections in `backend-defs`. the value o
 some_other_command "$(nabcat get -r 'critically orange cat')"
 ```
 - `viu`'s performance can be impacted by high-resolution images. If you have an alternative, define a integration for it in the config.
+# FAQ
+## How do I define a backend?
+Write the shell code directly into the config file under the appropriate header in the `backend-defs` section. Do not include quotes. Assume values will be parsed as zsh.
+Values will then have the selected cat's path appended to them with a space in between. The path will be quoted, so plan around that.
+As an example, if I wanted to invoke `imgcat` as a viewer, I would write the following in the `backend-defs.viewer`:
+```yaml
+backend-defs:
+  viewer:
+    - &myviewer imgcat
+```
+
+In the `backends` section, I would invoke the viewer defined under the name `myviewer` like so:
+```yaml
+backends:
+  viewer: *myviewer
+```
+
+## Isn't that insecure?
+Only if you don't check code before you paste it.

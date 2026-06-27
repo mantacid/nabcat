@@ -21,7 +21,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.4.0"
+declare -g env_version="3.4.1"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -215,7 +215,7 @@ function nabcat_random() {
   [ $flag_verbose ] && pretty_log info "Retrieved $catname."
   if [ $flag_do_copy ]; then
     eval $(echo "$env_prog_clipboard \"$retval\"")
-	pretty_log info "Copied \"$catname\" to clipboard."
+	[ $flag_verbose ] && pretty_log info "Copied \"$catname\" to clipboard."
   fi
   echo "$retval"
 }

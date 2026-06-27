@@ -35,3 +35,4 @@
 - Removed hard dependency on `gum`. This dependency is now optional for if you want to use it as your picker backend.
 - added `-q` flag to force-disable verbose output, since it was breaking no-argument usage.
 - Running `nabcat` without arguments will now detect if the viewer defined in the config file is installed.
+- *3.4.1*: Fixed `-q` not supressing output about copying in `random`.
