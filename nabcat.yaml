@@ -1,5 +1,7 @@
+# LOCATIONS: define alternate locations so you don't have to comment them out, and can just specify which one you want.
 locations:
   - &defaultlocation "~/Pictures/Cats/"
+
 ### ENV: contains values that define default behavior.
 env:
   cat-dir: *defaultlocation
@@ -19,6 +21,7 @@ backend-defs:
   picker:
     - &gum gum filter
     - &fzf fzf --style=full --preview="icat -m 24bit -w 50 $(echo $env_cat_dir){}"
+
 ### PROGRAMS: Control which backends are used for each function.
 backends:
   clipboard: *wayland
