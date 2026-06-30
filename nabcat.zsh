@@ -21,7 +21,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.4.1"
+declare -g env_version="3.4.2"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -36,7 +36,7 @@ env:
 backend-defs:
   clipboard:
     - &wayland wl-copy <
-    - &x11 xsel --selection --clipboard -t image/png -i
+    - &x11 xclip -selection clipboard -target image/png <
   viewer:
     - &viu viu -w 30
   picker:
@@ -326,7 +326,7 @@ function nabcat_choose() {
     if [ $flag_verbose ]; then
       [ ! -z "$catname" ] && pretty_log info "Copied \"$catname\" to clipboard."
     fi
-    eval $(echo "$env_prog_clipboard \"$var_catpath\"")
+    eval $(echo "$env_prog_clipboard \"$var_catpath\" > /dev/null")
   fi
   
   if [ $flag_return_result ]; then
