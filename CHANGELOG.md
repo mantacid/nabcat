@@ -37,3 +37,5 @@
 - Running `nabcat` without arguments will now detect if the viewer defined in the config file is installed.
 - *3.4.1*: Fixed `-q` not supressing output about copying in `random`.
 - *3.4.2*: fixed x11 clipboard backend not halting. Switched from `xsel` to `xclip`.
+## 3.5.0
+- Added `rofi` backend

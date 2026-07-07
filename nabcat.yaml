@@ -19,6 +19,7 @@ backend-defs:
   viewer:
     - &viu viu -w 30
   picker:
+    - &rofi rofi -dmenu
     - &gum gum filter
     - &fzf fzf --style=full --preview="icat -m 24bit -w 50 $(echo $env_cat_dir){}"
 

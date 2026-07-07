@@ -21,7 +21,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.4.2"
+declare -g env_version="3.5.0"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -40,6 +40,7 @@ backend-defs:
   viewer:
     - &viu viu -w 30
   picker:
+    - &rofi rofi -dmenu
     - &gum gum filter
     - &fzf fzf --style=full --preview="icat -m 24bit -w 50 $(echo $env_cat_dir){}"
 backends:
