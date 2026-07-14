@@ -67,7 +67,7 @@ some_other_command "$(nabcat get -r 'critically orange cat')"
 # FAQ
 ## How do I define a backend?
 Write the shell code directly into the config file under the appropriate header in the `backend-defs` section. Do not include quotes. Assume values will be parsed as zsh.
-Values will then have the selected cat's path appended to them with a space in between. The path will be quoted, so plan around that.
+Values will then have the selected cat's path appended to them with a space in between, except for the picker backend, which pipes the options into the picker command. The path will be quoted, so plan around that.
 As an example, if I wanted to invoke `imgcat` as a viewer, I would write the following in the `backend-defs.viewer`:
 ```yaml
 backend-defs:
