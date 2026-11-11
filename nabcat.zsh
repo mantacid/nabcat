@@ -21,7 +21,7 @@ case $XDG_SESSION_TYPE in
   ;;
 esac
 
-declare -g env_version="3.5.0"
+declare -g env_version="3.5.1"
 
 declare -g conf_path=$HOME/.config/nabcat.yaml
 if [ ! -f $conf_path ]; then
@@ -385,7 +385,7 @@ function _choose_help() {
   declare -A flagarray_choose=( ["-q"]="Force-disable verbose output." ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-P STRING"]="Command into which the list of files will be piped to allow for interactive selection." ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." ["-q"]="Force-disable verbose output." )
   
   echo "CHOOSE: Interactively select a cat."
-  echo "usage: nabcat choose [-cCvr] [-P STRING] [-d PATH]"
+  echo "usage: nabcat choose [-cCvrq] [-P STRING] [-d PATH]"
   echo -e "\n Flags:"
   for key in ${(k)flagarray_choose}; do
     printf '  %s\t%s\n' "$key" "$flagarray_choose[$key]" | expand -t 15
@@ -399,7 +399,7 @@ function _get_help() {
   declare -A argsarray_get=( ["FILENAME"]="The file name of the cat you wish to get, without the extension." )
   
   echo "GET: Pass a name of a cat to get that cat."
-  echo "usage: nabcat get [-d PATH] [-cCvr] FILENAME"
+  echo "usage: nabcat get [-d PATH] [-cCvrq] FILENAME"
   echo -e "\nArguments:"
   for key in ${(k)argsarray_get}; do
     printf '  %s\t%s\n' "$key" "$argsarray_get[$key]" | expand -t 15
@@ -414,7 +414,7 @@ function _random_help() {
   declare -A flagtable_random=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-v"]="Verbose output." ["-c"]="Copy the selected cat to the clipboard." ["-C"]="Do not copy result to clipboard." ["-q"]="Force-disable verbose output." )
   
   echo "RANDOM: Returns the path to a random cat."
-  echo "usage: nabcat random [-d PATH] [-v]"
+  echo "usage: nabcat random [-d PATH] [-cCvq]"
   echo -e "\nFlags:"
   for key in ${(k)flagtable_random}; do
     printf '  %s\t%s\n' "$key" "$flagtable_random[$key]" | expand -t 15
@@ -427,7 +427,7 @@ function _save_help() {
   declare -A flagarray_save=( ["-d PATH"]="Override the location in which to search for cats. Default value is currently $env_cat_dir. MUST INCLUDE TRAILING SLASH!" ["-O"]="Overwrite files if they already exist. Disabled by default." ["-r"]="Output the path to the selected cat after the command exits. Useful for passing the result to an image viewer." ["-v"]="Verbose output." ["-q"]="Force-disable verbose output." )
   
   echo "SAVE: save a cat from a source to a file of your choosing within the cats folder."
-  echo "usage: nabcat save [-d path] [-vrO] NEWNAME SOURCE"
+  echo "usage: nabcat save [-d path] [-vrOq] NEWNAME SOURCE"
   echo -e "\nArguments:"
   for key in ${(k)argsarray_save}; do
     printf '  %s\t%s\n' "$key" "$argsarray_save[$key]" | expand -t 15

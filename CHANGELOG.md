@@ -39,3 +39,5 @@
 - *3.4.2*: fixed x11 clipboard backend not halting. Switched from `xsel` to `xclip`.
 ## 3.5.0
 - Added `rofi` backend
+## 3.5.1
+- Fix `-q` option not being listed in usage strings.
